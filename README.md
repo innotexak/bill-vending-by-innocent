@@ -4,8 +4,6 @@ A robust backend service for bill vending that allows users to purchase electric
 
 ## 🏗️ Architecture Overview
 
-The system follows a microservices-inspired architecture with clear separation of concerns:
-
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Wallet API    │    │ Transaction API │    │   Bill API      │
@@ -21,74 +19,80 @@ The system follows a microservices-inspired architecture with clear separation o
                     │                 │
                     │ • WalletService │
                     │ • BillService   │
-                    │ • TxnService    │
+                    │ • TransactionService │
                     └─────────────────┘
                                  │
                     ┌─────────────────┐
                     │  Data Layer     │
                     │                 │
-                    │ • Database      │
-                    │ • Queue System  │
+                    │ • MongoDB Atlas │
+                    │ • Redis Queue   │
                     │ • External APIs │
                     └─────────────────┘
 ```
 
 ### Key Components
 
-1. **Wallet System**: Manages user funds with atomic operations
-2. **Bill Payment Engine**: Handles electricity bill payments with external API integration
-3. **Transaction Management**: Tracks all financial operations with audit trails
-4. **Event-Driven Processing**: Asynchronous handling of failures and reversals
-5. **Concurrency Control**: Prevents race conditions using database locks and transactions
-
-## 🚀 Features
-
-### Wallet Management
-- **Fund Wallet**: Add money to user wallets with validation
-- **Balance Inquiry**: Real-time balance checking with transaction history
-- **Concurrency Safe**: Atomic operations prevent double-spending
-
-### Bill Payment
-- **Electricity Purchase**: Seamless bill payment with external provider integration
-- **Failure Handling**: Automatic fund reversal on payment failures
-- **Status Tracking**: Real-time payment status updates
-
-### Transaction System
-- **Audit Trail**: Complete transaction history with timestamps
-- **Idempotency**: Duplicate transaction prevention
-- **Event Sourcing**: All state changes captured as events
+1. **Wallet System**: Fund management with atomic operations
+2. **Bill Payment Engine**: Electricity bill payments with external API integration
+3. **Transaction Management**: Complete audit trail of all operations
+4. **Event-Driven Processing**: Asynchronous failure handling and reversals
+5. **Concurrency Control**: Race condition prevention using MongoDB transactions
 
 ## 🛠️ Tech Stack
 
 - **Framework**: NestJS (Node.js + TypeScript)
-- **Database**: PostgreSQL with TypeORM
+- **Database**: MongoDB with Mongoose
 - **Queue System**: Bull (Redis-based) for async processing
-- **Documentation**: Swagger/OpenAPI
-- **Testing**: Jest with comprehensive unit/integration tests
+- **Documentation**: Swagger/OpenAPI at `/api/docs`
+- **Testing**: Jest with comprehensive coverage
 - **Logging**: Winston with structured logging
-- **Validation**: class-validator for DTO validation
+- **Validation**: class-validator and class-transformer
+
+## 📦 Dependencies
+
+### Core Dependencies
+- **@nestjs/common** ^10.0.0 - Core NestJS framework
+- **@nestjs/core** ^10.0.0 - NestJS core functionality
+- **@nestjs/platform-express** ^10.0.0 - Express platform adapter
+- **@nestjs/mongoose** ^10.0.2 - MongoDB integration
+- **@nestjs/swagger** ^7.1.17 - API documentation
+- **@nestjs/config** ^3.1.1 - Configuration management
+- **@nestjs/bull** ^10.0.1 - Queue management
+- **bull** ^4.12.2 - Redis-based queue system
+- **mongoose** ^8.0.3 - MongoDB object modeling
+- **class-validator** ^0.14.0 - Validation decorators
+- **class-transformer** ^0.5.1 - Object transformation
+- **uuid** ^9.0.1 - UUID generation
+- **winston** ^3.11.0 - Logging library
+- **nest-winston** ^1.9.4 - Winston integration for NestJS
+- **redis** ^4.6.10 - Redis client
+
+### Development Dependencies
+- **@nestjs/cli** ^10.0.0 - NestJS command line interface
+- **@nestjs/testing** ^10.0.0 - Testing utilities
+- **jest** ^29.5.0 - Testing framework
+- **typescript** ^5.1.3 - TypeScript compiler
+- **eslint** ^8.42.0 - Code linting
+- **prettier** ^3.0.0 - Code formatting
+- **supertest** ^6.3.3 - HTTP assertion testing
 
 ## 📋 Prerequisites
 
 - Node.js (v18 or higher)
-- PostgreSQL (v13 or higher)
 - Redis (v6 or higher)
 - npm or yarn
 
 ## 🏃‍♂️ Quick Start
 
-### 1. Clone the Repository
+### 1. Clone & Install
 ```bash
-git clone https://github.com/your-username/bill-vending-service.git
+git clone https://github.com/innotexak/bill-vending-by-innocent.git bill-vending-service
 cd bill-vending-service
-```
-
-### 2. Install Dependencies
-```bash
 npm install
 ```
 
-### 3. Environment Setup
+### 2. Environment Setup
 ```bash
 cp .env.example .env
 ```
@@ -96,270 +100,99 @@ cp .env.example .env
 Configure your `.env` file:
 ```env
 # Database
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-DATABASE_USERNAME=postgres
-DATABASE_PASSWORD=password
-DATABASE_NAME=bill_vending
+MONGODB_URI=mongodb+srv://username:password@cluster0.6lymd.mongodb.net/billing?retryWrites=true&w=majority
 
 # Redis
 REDIS_HOST=localhost
 REDIS_PORT=6379
 
-# External APIs
-BILL_PROVIDER_API_URL=https://api.billprovider.com
-BILL_PROVIDER_API_KEY=your_api_key
-
 # Application
-PORT=3000
 NODE_ENV=development
+PORT=3000
 ```
 
-### 4. Database Setup
+### 3. Start the Application
 ```bash
-# Run migrations
-npm run migration:run
-
-# Seed initial data (optional)
-npm run seed
-```
-
-### 5. Start the Application
-```bash
-# Development
 npm run start:dev
-
-# Production
-npm run start:prod
 ```
 
-The API will be available at `http://localhost:3000`
+## 🛠️ Available Scripts
+
+```bash
+# Build the application
+npm run build
+
+# Format code with Prettier
+npm run format
+
+# Start application
+npm run start                # Production mode
+npm run start:dev           # Development mode with watch
+npm run start:debug         # Debug mode with watch
+npm run start:prod          # Production build
+
+# Code quality
+npm run lint                # ESLint with auto-fix
+npm run format             # Prettier formatting
+
+# Testing
+npm run test               # Unit tests
+npm run test:watch         # Watch mode
+npm run test:cov           # Coverage report
+npm run test:debug         # Debug tests
+npm run test:e2e           # Integration tests
+```
 
 ## 📖 API Documentation
 
-### Swagger UI
-Access interactive API documentation at: `http://localhost:3000/api`
+**Swagger UI**: `http://localhost:3000/api/docs`
 
-### Core Endpoints
+### Core Features
+- **Wallet Operations**: Fund wallet, check balance
+- **Bill Payment**: Pay electricity bills with automatic reversals on failure
+- **Transaction History**: Complete audit trail with status tracking
 
-#### Wallet Operations
-```http
-POST /wallet/fund
-Content-Type: application/json
+## 🔄 External Service Integration
 
-{
-  "userId": "user123",
-  "amount": 1000,
-  "currency": "NGN"
-}
-```
-
-```http
-GET /wallet/balance/{userId}
-```
-
-#### Bill Payment
-```http
-POST /bills/pay
-Content-Type: application/json
-
-{
-  "userId": "user123",
-  "billType": "electricity",
-  "amount": 500,
-  "meterNumber": "12345678901",
-  "provider": "EKEDC"
-}
-```
-
-#### Transaction History
-```http
-GET /transactions/user/{userId}
-GET /transactions/{transactionId}
-```
-
-### Response Format
-All API responses follow a consistent structure:
-
-```json
-{
-  "success": true,
-  "message": "Operation completed successfully",
-  "data": { ... },
-  "timestamp": "2024-06-07T12:00:00.000Z"
-}
-```
-
-## 🔄 Async Processing & Event Handling
-
-### Event-Driven Architecture
-The system uses Redis-based queues for asynchronous processing:
-
-1. **Payment Processing Queue**: Handles bill payment requests
-2. **Reversal Queue**: Manages automatic fund reversals on failures
-3. **Notification Queue**: Sends user notifications and webhooks
-
-### Failure Handling Flow
-```
-Payment Request → Deduct Funds → External API Call
-                     ↓               ↓
-              Success: Complete    Failure: Queue Reversal
-                     ↓               ↓
-              Update Status    → Reverse Funds → Notify User
-```
-
-### Queue Workers
-```typescript
-// Example: Payment processing worker
-@Processor('payment')
-export class PaymentProcessor {
-  @Process('process-bill-payment')
-  async processBillPayment(job: Job<PaymentData>) {
-    // Process payment with external API
-    // Handle success/failure scenarios
-    // Trigger appropriate events
-  }
-}
-```
+Mocked external bill payment service simulates real-world scenarios:
+- **80% success rate** with 2-second delay
+- **Failure scenarios**: INVALID_ACCOUNT, SERVICE_UNAVAILABLE, TIMEOUT, INSUFFICIENT_CREDIT
+- **Automatic reversals** on payment failures via Redis queues
 
 ## 🔒 Concurrency Control
 
-### Database-Level Protection
-- **Row-level locking** for wallet balance updates
-- **Transactions** ensure atomicity of multi-step operations
-- **Unique constraints** prevent duplicate transactions
+- **MongoDB transactions** for multi-document operations
+- **Optimistic concurrency control** using document versioning
+- **Atomic operations** prevent race conditions and double-spending
 
-### Application-Level Guards
-```typescript
-// Example: Wallet balance update with concurrency control
-async updateBalance(userId: string, amount: number) {
-  return this.dataSource.transaction(async manager => {
-    const wallet = await manager
-      .createQueryBuilder(Wallet, 'wallet')
-      .setLock('pessimistic_write')
-      .where('wallet.userId = :userId', { userId })
-      .getOne();
-    
-    // Atomic balance update
-    wallet.balance += amount;
-    return manager.save(wallet);
-  });
-}
-```
+## 🧪 Testing Configuration
 
-## 🧪 Testing
+The project uses Jest with the following configuration:
+- **Test files**: `*.spec.ts` pattern
+- **Coverage**: Comprehensive coverage reporting
+- **Environment**: Node.js test environment
+- **Transform**: TypeScript support via ts-jest
 
-### Run Tests
+Run tests with coverage:
 ```bash
-# Unit tests
-npm run test
-
-# Integration tests
-npm run test:e2e
-
-# Test coverage
 npm run test:cov
 ```
 
-### Test Structure
-```
-src/
-├── wallet/
-│   ├── __tests__/
-│   │   ├── wallet.controller.spec.ts
-│   │   ├── wallet.service.spec.ts
-│   │   └── wallet.integration.spec.ts
-└── bills/
-    ├── __tests__/
-    │   ├── bill.controller.spec.ts
-    │   └── bill.service.spec.ts
-```
+## 🚀 Production Deployment
 
-## 📊 Monitoring & Logging
-
-### Structured Logging
-```typescript
-// Example log output
-{
-  "timestamp": "2024-06-07T12:00:00.000Z",
-  "level": "info",
-  "message": "Bill payment processed",
-  "context": {
-    "userId": "user123",
-    "transactionId": "txn_456",
-    "amount": 500,
-    "provider": "EKEDC"
-  }
-}
-```
-
-### Health Checks
-```http
-GET /health
-```
-
-Returns system health status including:
-- Database connectivity
-- Redis connectivity
-- External API status
-- Queue processing status
-
-## 🔧 Configuration
-
-### Environment Variables
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Application port | `3000` |
-| `DATABASE_HOST` | PostgreSQL host | `localhost` |
-| `REDIS_HOST` | Redis host | `localhost` |
-| `LOG_LEVEL` | Logging level | `info` |
-| `QUEUE_CONCURRENCY` | Queue worker concurrency | `5` |
-
-### Feature Flags
-```env
-# Enable/disable features
-ENABLE_NOTIFICATIONS=true
-ENABLE_WEBHOOKS=false
-STRICT_VALIDATION=true
-```
-
-## 🚀 Deployment
-
-### Docker
 ```bash
-# Build image
-docker build -t bill-vending-service .
-
-# Run with docker-compose
 docker-compose up -d
 ```
 
-### Production Considerations
-- Use connection pooling for database
-- Configure Redis clustering for high availability
-- Set up proper monitoring and alerting
-- Implement rate limiting and security headers
-- Use HTTPS in production
+**Production considerations**: MongoDB Atlas network controls, Redis clustering, rate limiting, HTTPS, real API integrations.
 
-## 🤝 Contributing
+## 📝 Project Information
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue in the GitHub repository
-- Check the [API documentation](http://localhost:3000/api) for endpoint details
-- Review the test files for usage examples
+- **Name**: bill-vending-service
+- **Version**: 0.0.1
+- **License**: UNLICENSED
+- **Description**: Backend service for bill vending with wallet system
 
 ---
 
-**Built with ❤️ using NestJS and TypeScript**
+**Built with ❤️ using NestJS, TypeScript, and MongoDB**
