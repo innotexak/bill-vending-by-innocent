@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { Transaction, TransactionDocument } from './schemas/transaction.schema';
 import { TransactionStatus } from '../common/enums/transaction-status.enum';
 import { TransactionType } from '../common/enums/transaction-type.enum';
-import { TransactionNotFoundException } from '@/common/exceptions';
+import { TransactionNotFoundException } from '../common/exceptions';
 
 @Injectable()
 export class TransactionService {
