@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,8 +12,31 @@ import { PayBillDto } from './dto/pay-bill.dto';
 import { TransactionType } from '../common/enums/transaction-type.enum';
 import { TransactionStatus } from '../common/enums/transaction-status.enum';
 
+// Interface definition
+export interface IReversalData {
+  transactionId: string;
+  userId: string;
+  amount: number;
+  reason: string;
+}
+
+// DTO for processing bill payment queue data
+export interface IBillPaymentProcessData {
+  transactionId: string;
+  userId: string;
+  billType: string;
+  accountNumber: string;
+  amount: number;
+  meterNumber?: string;
+}
+
+interface IBillDetails {
+  billType: string;
+  accountNumber: string;
+  meterNumber?: string;
+}
 @Injectable()
-export class BillService {
+export class BillService implements OnModuleInit {
   private readonly logger = new Logger(BillService.name);
 
   constructor(
@@ -23,42 +46,94 @@ export class BillService {
     @InjectQueue('bill-payment') private billPaymentQueue: Queue,
   ) {}
 
+  //Init redis monitoring
+  async onModuleInit() {
+    await this.setupRedisMonitoring();
+  }
+
+  /**
+   * Method to setup Redis monitoring
+   * This method will be called when the module is initialized
+   * It sets up event listeners for Redis connection and error events
+   * It also tests the Redis connection by sending a ping command
+   * If the connection is successful, it logs a success message
+   * If there is an error, it logs the error message
+   **/
+  private async setupRedisMonitoring() {
+    try {
+      const redisClient = this.billPaymentQueue.client;
+
+      redisClient.on('connect', () => {
+        this.logger.log('✅ Redis connected successfully');
+      });
+
+      redisClient.on('error', (error) => {
+        console.log(error);
+        this.logger.error(`❌ Redis error: ${error.message}`);
+      });
+
+      // Test connection
+      await redisClient.ping();
+      this.logger.log('✅ Redis ping successful');
+    } catch (error) {
+      this.logger.error(`❌ Redis connection failed: ${error.message}`);
+    }
+  }
+  /** 
+    Method to pay bill
+    This method processes the bill payment by creating a transaction,
+    deducting the amount from the user's wallet, and queuing the payment for processing
+    It handles errors by rolling back the wallet deduction and updating the transaction status
+    It returns the transaction ID and status to the caller
+    If the payment fails, it queues a reversal process to refund the amount to the user's wallet
+    It also logs the process for monitoring and debugging purposes
+  **/
   async payBill(payBillDto: PayBillDto) {
     const { userId, billType, accountNumber, amount, meterNumber } = payBillDto;
     const transactionId = uuidv4();
+    let walletDebited = false;
 
     this.logger.log(
       `Processing bill payment for user ${userId}, amount ${amount}`,
     );
 
+    const billDetails: IBillDetails = {
+      billType,
+      accountNumber,
+      meterNumber,
+    };
+
     try {
-      // 1. Create transaction record
+      // Create transaction record
       await this.transactionService.createTransaction(
         transactionId,
         userId,
         amount,
         TransactionType.BILL_PAYMENT,
-        { billType, accountNumber, meterNumber },
+        billDetails,
       );
 
-      // 2. Deduct amount from wallet (with concurrency control)
+      // Deduct amount from wallet (with concurrency control)
       await this.walletService.deductAmount(userId, amount);
+      walletDebited = true; // Mark that wallet was debited
 
-      // 3. Update transaction status to processing
+      // Update transaction status to processing
       await this.transactionService.updateTransactionStatus(
         transactionId,
         TransactionStatus.PROCESSING,
       );
 
-      // 4. Queue the bill payment for async processing
-      await this.billPaymentQueue.add('process-payment', {
+      // Queue the bill payment for async processing
+      const queueData: IBillPaymentProcessData = {
         transactionId,
         userId,
         billType,
         accountNumber,
         amount,
         meterNumber,
-      });
+      };
+
+      await this.billPaymentQueue.add('process-payment', queueData);
 
       this.logger.log(`Bill payment queued for processing: ${transactionId}`);
 
@@ -69,6 +144,21 @@ export class BillService {
       };
     } catch (error) {
       this.logger.error(`Failed to initiate bill payment: ${error.message}`);
+
+      // Rollback wallet deduction if it was successful
+      if (walletDebited) {
+        try {
+          await this.walletService.refundAmount(userId, amount);
+          this.logger.log(
+            `Refunded ${amount} to user ${userId} due to payment failure`,
+          );
+        } catch (refundError) {
+          this.logger.error(
+            `CRITICAL: Failed to refund ${amount} to user ${userId}: ${refundError.message}`,
+          );
+          // In real life application, I will alert the support team or switch processing of refund for manual intervention
+        }
+      }
 
       // Update transaction status to failed
       try {
@@ -88,7 +178,14 @@ export class BillService {
     }
   }
 
-  async processBillPayment(data: any) {
+  /**
+   * Method to process bill payment
+   * This method is called by the bill payment queue to process the payment
+   * It handles the actual interaction with the external bill payment service
+   * It updates the transaction status based on the response from the external service
+   * If the payment fails, it queues a reversal process to refund the amount to the user's wallet
+   */
+  async processBillPayment(data: IBillPaymentProcessData) {
     const {
       transactionId,
       userId,
@@ -133,12 +230,14 @@ export class BillService {
         );
 
         // Queue reversal process
-        await this.billPaymentQueue.add('process-reversal', {
+        const reversalData: IReversalData = {
           transactionId,
           userId,
           amount,
           reason: response.message,
-        });
+        };
+
+        await this.billPaymentQueue.add('process-reversal', reversalData);
 
         this.logger.log(
           `Bill payment failed, reversal queued: ${transactionId}`,
@@ -158,16 +257,24 @@ export class BillService {
       );
 
       // Queue reversal process
-      await this.billPaymentQueue.add('process-reversal', {
+      const reversalData: IReversalData = {
         transactionId,
         userId,
         amount,
         reason: error.message,
-      });
+      };
+
+      await this.billPaymentQueue.add('process-reversal', reversalData);
     }
   }
 
-  async processReversal(data: any) {
+  /**
+   * Method to process reversal of a transaction
+   * This method is called when a transaction needs to be reversed
+   * It creates a new reversal transaction, refunds the amount to the user's wallet,
+   * and updates the original transaction status
+   */
+  async processReversal(data: IReversalData) {
     const { transactionId, userId, amount, reason } = data;
     const reversalTransactionId = uuidv4();
 

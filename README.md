@@ -44,42 +44,15 @@ A robust backend service for bill vending that allows users to purchase electric
 - **Framework**: NestJS (Node.js + TypeScript)
 - **Database**: MongoDB with Mongoose
 - **Queue System**: Bull (Redis-based) for async processing
-- **Documentation**: Swagger/OpenAPI at `/api/docs`
+- **Documentation**: Swagger/OpenAPI
 - **Testing**: Jest with comprehensive coverage
 - **Logging**: Winston with structured logging
 - **Validation**: class-validator and class-transformer
 
-## 📦 Dependencies
-
-### Core Dependencies
-- **@nestjs/common** ^10.0.0 - Core NestJS framework
-- **@nestjs/core** ^10.0.0 - NestJS core functionality
-- **@nestjs/platform-express** ^10.0.0 - Express platform adapter
-- **@nestjs/mongoose** ^10.0.2 - MongoDB integration
-- **@nestjs/swagger** ^7.1.17 - API documentation
-- **@nestjs/config** ^3.1.1 - Configuration management
-- **@nestjs/bull** ^10.0.1 - Queue management
-- **bull** ^4.12.2 - Redis-based queue system
-- **mongoose** ^8.0.3 - MongoDB object modeling
-- **class-validator** ^0.14.0 - Validation decorators
-- **class-transformer** ^0.5.1 - Object transformation
-- **uuid** ^9.0.1 - UUID generation
-- **winston** ^3.11.0 - Logging library
-- **nest-winston** ^1.9.4 - Winston integration for NestJS
-- **redis** ^4.6.10 - Redis client
-
-### Development Dependencies
-- **@nestjs/cli** ^10.0.0 - NestJS command line interface
-- **@nestjs/testing** ^10.0.0 - Testing utilities
-- **jest** ^29.5.0 - Testing framework
-- **typescript** ^5.1.3 - TypeScript compiler
-- **eslint** ^8.42.0 - Code linting
-- **prettier** ^3.0.0 - Code formatting
-- **supertest** ^6.3.3 - HTTP assertion testing
-
 ## 📋 Prerequisites
 
 - Node.js (v18 or higher)
+- MongoDB (Atlas or local instance)
 - Redis (v6 or higher)
 - npm or yarn
 
@@ -119,28 +92,23 @@ npm run start:dev
 ## 🛠️ Available Scripts
 
 ```bash
-# Build the application
-npm run build
-
-# Format code with Prettier
-npm run format
-
-# Start application
-npm run start                # Production mode
+# Development
 npm run start:dev           # Development mode with watch
 npm run start:debug         # Debug mode with watch
-npm run start:prod          # Production build
 
-# Code quality
-npm run lint                # ESLint with auto-fix
-npm run format             # Prettier formatting
+# Production
+npm run build              # Build the application
+npm run start:prod         # Production build
+
+# Code Quality
+npm run lint               # ESLint with auto-fix
+npm run format            # Prettier formatting
 
 # Testing
-npm run test               # Unit tests
-npm run test:watch         # Watch mode
-npm run test:cov           # Coverage report
-npm run test:debug         # Debug tests
-npm run test:e2e           # Integration tests
+npm run test              # Unit tests
+npm run test:watch        # Watch mode
+npm run test:cov          # Coverage report
+npm run test:e2e          # Integration tests
 ```
 
 ## 📖 API Documentation
@@ -165,18 +133,14 @@ Mocked external bill payment service simulates real-world scenarios:
 - **Optimistic concurrency control** using document versioning
 - **Atomic operations** prevent race conditions and double-spending
 
-## 🧪 Testing Configuration
-
-The project uses Jest with the following configuration:
-- **Test files**: `*.spec.ts` pattern
-- **Coverage**: Comprehensive coverage reporting
-- **Environment**: Node.js test environment
-- **Transform**: TypeScript support via ts-jest
+## 🧪 Testing
 
 Run tests with coverage:
 ```bash
 npm run test:cov
 ```
+
+The project uses Jest with comprehensive test coverage for all core functionality.
 
 ## 🚀 Production Deployment
 
@@ -185,13 +149,6 @@ docker-compose up -d
 ```
 
 **Production considerations**: MongoDB Atlas network controls, Redis clustering, rate limiting, HTTPS, real API integrations.
-
-## 📝 Project Information
-
-- **Name**: bill-vending-service
-- **Version**: 0.0.1
-- **License**: UNLICENSED
-- **Description**: Backend service for bill vending with wallet system
 
 ---
 

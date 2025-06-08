@@ -17,10 +17,14 @@ import { QueueModule } from './queue/queue.module';
     ),
     BullModule.forRoot({
       redis: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT) || 6379,
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT),
+
         // password: process.env.REDIS_PASSWORD,
-        tls: process.env.REDIS_HOST !== 'localhost' ? {} : undefined,
+        // tls: process.env.REDIS_HOST !== 'localhost' ? {} : undefined,
+        maxRetriesPerRequest: 3,
+        enableReadyCheck: false,
+        lazyConnect: true,
       },
     }),
     WalletModule,

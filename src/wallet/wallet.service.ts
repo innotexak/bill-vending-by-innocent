@@ -15,6 +15,20 @@ export class WalletService {
     @InjectModel(Wallet.name) private walletModel: Model<WalletDocument>,
   ) {}
 
+  /**
+   * Funds an existing wallet or creates a new wallet for a user if one doesn't exist.
+   *
+   * This method performs an atomic operation to either increment the balance of an existing
+   * wallet or create a new wallet with the specified amount if no wallet exists for the user.
+   * The operation uses MongoDB's upsert functionality to ensure data consistency.
+   *
+   * @param {FundWalletDto} fundWalletDto - The data transfer object containing funding information
+   * @param {string} fundWalletDto.userId - The unique identifier of the user whose wallet is being funded
+   * @param {number} fundWalletDto.amount - The amount to add to the wallet balance (must be positive)
+   *
+   * @returns {Promise<Wallet>} A promise that resolves to the updated or newly created wallet document
+
+   */
   async fundWallet(fundWalletDto: FundWalletDto): Promise<Wallet> {
     const { userId, amount } = fundWalletDto;
 
@@ -30,6 +44,11 @@ export class WalletService {
     return wallet;
   }
 
+  /**
+   * Retrieves the balance of a user's wallet.
+   * @param userId The ID of the user whose wallet balance is to be retrieved.
+   * @returns The balance of the user's wallet.
+   */
   async getBalance(userId: string): Promise<number> {
     const wallet = await this.walletModel.findOne({ userId });
     if (!wallet) {
@@ -38,6 +57,12 @@ export class WalletService {
     return wallet.balance;
   }
 
+  /**
+   * Deducts a specified amount from a user's wallet.
+   * @param userId The ID of the user whose wallet is to be deducted.
+   * @param amount The amount to deduct from the user's wallet.
+   * @returns The updated wallet document after deduction.
+   */
   async deductAmount(userId: string, amount: number): Promise<Wallet> {
     const session = await this.walletModel.db.startSession();
     session.startTransaction();
@@ -81,6 +106,12 @@ export class WalletService {
     }
   }
 
+  /**
+   * Refunds a specified amount to a user's wallet.
+   * @param userId The ID of the user whose wallet is to be refunded.
+   * @param amount The amount to refund to the user's wallet.
+   * @returns The updated wallet document after refund.
+   */
   async refundAmount(userId: string, amount: number): Promise<Wallet> {
     this.logger.log(`Refunding ${amount} to wallet for user ${userId}`);
 
