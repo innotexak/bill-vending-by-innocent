@@ -7,6 +7,7 @@ import { FundWalletDto } from './dto/fund-wallet.dto';
 mockUserDecorator();
 describe('WalletController', () => {
   let controller: WalletController;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let service: WalletService;
 
   const mockWalletService = {

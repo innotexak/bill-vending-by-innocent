@@ -8,6 +8,7 @@ import { PayBillDto } from './dto/pay-bill.dto';
 
 describe('BillController', () => {
   let controller: BillController;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let service: BillService;
 
   const mockBillService = {
