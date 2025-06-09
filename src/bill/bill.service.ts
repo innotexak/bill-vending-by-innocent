@@ -88,8 +88,8 @@ export class BillService implements OnModuleInit {
     If the payment fails, it queues a reversal process to refund the amount to the user's wallet
     It also logs the process for monitoring and debugging purposes
   **/
-  async payBill(payBillDto: PayBillDto) {
-    const { userId, billType, accountNumber, amount, meterNumber } = payBillDto;
+  async payBill(payBillDto: PayBillDto, userId: string) {
+    const { billType, accountNumber, amount, meterNumber } = payBillDto;
     const transactionId = uuidv4();
     let walletDebited = false;
 

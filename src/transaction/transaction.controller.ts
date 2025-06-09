@@ -1,7 +1,13 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { TransactionService } from './transaction.service';
 import { BaseResponse } from '../common/interfaces/base-response.interface';
+import { UserDecorator } from '@/common/decorator/decorator.getCurrentUser';
 
 @ApiTags('transactions')
 @Controller('transactions')
@@ -9,6 +15,7 @@ export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
   @Get(':transactionId')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get transaction by ID' })
   @ApiResponse({
     status: 200,
@@ -16,6 +23,7 @@ export class TransactionController {
   })
   @ApiResponse({ status: 404, description: 'Transaction not found' })
   async getTransaction(
+    @UserDecorator('userId') userId: string,
     @Param('transactionId') transactionId: string,
   ): Promise<BaseResponse> {
     try {
@@ -37,14 +45,15 @@ export class TransactionController {
     }
   }
 
-  @Get('user/:userId')
+  @Get('user')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user transactions' })
   @ApiResponse({
     status: 200,
     description: 'Transactions retrieved successfully',
   })
   async getUserTransactions(
-    @Param('userId') userId: string,
+    @UserDecorator('userId') userId: string,
   ): Promise<BaseResponse> {
     try {
       const transactions =
@@ -56,6 +65,7 @@ export class TransactionController {
         timestamp: new Date(),
       };
     } catch (error) {
+      console.log(error);
       return {
         success: false,
         message: 'Failed to retrieve transactions',

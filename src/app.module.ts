@@ -6,6 +6,7 @@ import { WalletModule } from './wallet/wallet.module';
 import { BillModule } from './bill/bill.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { QueueModule } from './queue/queue.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -20,8 +21,8 @@ import { QueueModule } from './queue/queue.module';
         host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT),
 
-        // password: process.env.REDIS_PASSWORD,
-        // tls: process.env.REDIS_HOST !== 'localhost' ? {} : undefined,
+        // password: process.env.REDIS_PASSWORD, //
+        tls: process.env.REDIS_HOST !== 'localhost' ? {} : undefined,
         maxRetriesPerRequest: 3,
         enableReadyCheck: false,
         lazyConnect: true,
@@ -31,6 +32,7 @@ import { QueueModule } from './queue/queue.module';
     BillModule,
     TransactionModule,
     QueueModule,
+    UserModule,
   ],
 })
 export class AppModule {}

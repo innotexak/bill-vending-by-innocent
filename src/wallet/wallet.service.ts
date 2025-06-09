@@ -29,15 +29,17 @@ export class WalletService {
    * @returns {Promise<Wallet>} A promise that resolves to the updated or newly created wallet document
 
    */
-  async fundWallet(fundWalletDto: FundWalletDto): Promise<Wallet> {
-    const { userId, amount } = fundWalletDto;
-
+  async fundWallet(
+    fundWalletDto: FundWalletDto,
+    userId: string,
+  ): Promise<Wallet> {
+    const { amount } = fundWalletDto;
     this.logger.log(`Funding wallet for user ${userId} with amount ${amount}`);
 
     const wallet = await this.walletModel.findOneAndUpdate(
       { userId },
       { $inc: { balance: amount } },
-      { new: true, upsert: true },
+      { new: true },
     );
 
     this.logger.log(`Wallet funded successfully for user ${userId}`);

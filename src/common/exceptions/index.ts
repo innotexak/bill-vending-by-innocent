@@ -17,3 +17,21 @@ export class InsufficientFundsException extends HttpException {
     super('Insufficient funds in wallet', HttpStatus.BAD_REQUEST);
   }
 }
+
+export class UserNotFoundException extends HttpException {
+  constructor() {
+    super('Invalid login credential', HttpStatus.BAD_REQUEST);
+  }
+}
+
+export class UserAlreadyExistException extends HttpException {
+  constructor() {
+    super('User already exist', HttpStatus.BAD_REQUEST);
+  }
+}
+
+export class AccountNotActivatedException extends HttpException {
+  constructor() {
+    super('Kindly activate your account', HttpStatus.FORBIDDEN);
+  }
+}

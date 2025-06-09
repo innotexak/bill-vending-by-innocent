@@ -108,7 +108,11 @@ export class TransactionService {
    * @returns An array of transaction documents for the user.
    */
   async getUserTransactions(userId: string): Promise<Transaction[]> {
-    return this.transactionModel.find({ userId }).sort({ createdAt: -1 });
+    const result = await this.transactionModel
+      .find({ userId })
+      .sort({ createdAt: -1 });
+    console.log(userId, result, 'fetched');
+    return result;
   }
 
   /**

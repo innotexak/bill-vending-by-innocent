@@ -4,6 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const logger = WinstonModule.createLogger({
@@ -39,6 +40,15 @@ async function bootstrap() {
     logger,
   });
 
+  // Enable cookie parsing middleware
+  app.use(cookieParser());
+
+  // Enable CORS with credentials
+  app.enableCors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -51,6 +61,7 @@ async function bootstrap() {
     .setTitle('Bill Vending Service API')
     .setDescription('Backend service for bill vending with wallet system')
     .setVersion('1.0')
+    .addTag('user', 'user management operations')
     .addTag('wallet', 'Wallet management operations')
     .addTag('bills', 'Bill payment operations')
     .addTag('transactions', 'Transaction management')
@@ -59,9 +70,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(3000);
-  console.log('Application is running on: http://localhost:3000');
-  console.log('Swagger documentation: http://localhost:3000/api/docs');
+  await app.listen(process.env.PORT || 3000);
+  console.log(`Application is running on: ${process.env.BASE_URL}`);
+  console.log(`Swagger documentation: ${process.env.BASE_URL}/api/docs`);
 }
 
 bootstrap();
