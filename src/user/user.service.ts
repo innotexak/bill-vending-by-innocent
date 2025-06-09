@@ -22,6 +22,13 @@ export class UserService {
     private readonly walletService: WalletService,
   ) {}
 
+  /**
+   * Login user with email and password
+   * @param payload
+   * @returns LoginResponse
+   */
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async Login(payload: LoginDto): Promise<LoginResponse> {
     try {
       // Check if there is user with the email
@@ -61,6 +68,7 @@ export class UserService {
       );
     }
   }
+
 
   async Register(payload: LoginDto) {
     // Check if there is user with the email
@@ -112,7 +120,7 @@ export class UserService {
         role: payload.role,
       },
       secret,
-      { expiresIn: '24h' },
+      { expiresIn: '1h' },
     );
   }
 }
