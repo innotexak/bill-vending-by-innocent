@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionController } from './transaction.controller';
 import { TransactionService } from './transaction.service';
+import { mockUserDecorator } from '../common/decorator/mock/mock.getCurrentUser';
+
+mockUserDecorator();
 
 describe('TransactionController', () => {
   let controller: TransactionController;
@@ -46,7 +49,7 @@ describe('TransactionController', () => {
     it('should successfully retrieve transaction by ID', async () => {
       mockTransactionService.getTransaction.mockResolvedValue(mockTransaction);
 
-      const result = await controller.getTransaction('txn123');
+      const result = await controller.getTransaction('userId', 'txn123');
 
       expect(result).toEqual({
         success: true,
@@ -66,7 +69,7 @@ describe('TransactionController', () => {
         new Error(errorMessage),
       );
 
-      const result = await controller.getTransaction('nonexistent');
+      const result = await controller.getTransaction('userId', 'nonexistent');
 
       expect(result).toEqual({
         success: false,
@@ -85,7 +88,7 @@ describe('TransactionController', () => {
         new Error(errorMessage),
       );
 
-      const result = await controller.getTransaction('invalid-id');
+      const result = await controller.getTransaction('userId', 'invalid-id');
 
       expect(result).toEqual({
         success: false,
@@ -101,7 +104,7 @@ describe('TransactionController', () => {
         new Error(errorMessage),
       );
 
-      const result = await controller.getTransaction('txn123');
+      const result = await controller.getTransaction('useId', 'txn123');
 
       expect(result).toEqual({
         success: false,

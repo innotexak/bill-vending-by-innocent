@@ -1,4 +1,4 @@
-import { UserRole } from '@/common/enums/user-role.enum';
+import { UserRole } from '../../common/enums/user-role.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 

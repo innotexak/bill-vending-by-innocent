@@ -7,11 +7,11 @@ import {
   AccountNotActivatedException,
   UserAlreadyExistException,
   UserNotFoundException,
-} from '@/common/exceptions';
+} from '../common/exceptions';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
-import { LoginResponse } from '@/common/interfaces/base-response.interface';
-import { WalletService } from '@/wallet/wallet.service';
+import { LoginResponse } from '../common/interfaces/base-response.interface';
+import { WalletService } from '../wallet/wallet.service';
 
 @Injectable()
 export class UserService {
@@ -68,7 +68,6 @@ export class UserService {
       );
     }
   }
-
 
   async Register(payload: LoginDto) {
     // Check if there is user with the email

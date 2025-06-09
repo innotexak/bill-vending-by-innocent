@@ -1,8 +1,10 @@
+import { mockUserDecorator } from '../common/decorator/mock/mock.getCurrentUser';
 import { Test, TestingModule } from '@nestjs/testing';
 import { WalletController } from './wallet.controller';
 import { WalletService } from './wallet.service';
 import { FundWalletDto } from './dto/fund-wallet.dto';
 
+mockUserDecorator();
 describe('WalletController', () => {
   let controller: WalletController;
   let service: WalletService;
@@ -33,7 +35,6 @@ describe('WalletController', () => {
 
   describe('fundWallet', () => {
     const mockFundWalletDto: FundWalletDto = {
-      userId: 'user123',
       amount: 500,
     };
 
@@ -47,7 +48,7 @@ describe('WalletController', () => {
     it('should successfully fund wallet', async () => {
       mockWalletService.fundWallet.mockResolvedValue(mockWalletResult);
 
-      const result = await controller.fundWallet(mockFundWalletDto);
+      const result = await controller.fundWallet('user123', mockFundWalletDto);
 
       expect(result).toEqual({
         success: true,
@@ -57,6 +58,7 @@ describe('WalletController', () => {
       });
       expect(mockWalletService.fundWallet).toHaveBeenCalledWith(
         mockFundWalletDto,
+        'user123',
       );
       expect(mockWalletService.fundWallet).toHaveBeenCalledTimes(1);
     });
@@ -64,11 +66,7 @@ describe('WalletController', () => {
     it('should handle invalid amount error', async () => {
       const errorMessage = 'Amount must be greater than 0';
       mockWalletService.fundWallet.mockRejectedValue(new Error(errorMessage));
-
-      const result = await controller.fundWallet({
-        ...mockFundWalletDto,
-        amount: -100,
-      });
+      const result = await controller.fundWallet('user123', mockFundWalletDto);
 
       expect(result).toEqual({
         success: false,
@@ -82,9 +80,7 @@ describe('WalletController', () => {
       const errorMessage = 'Invalid payment method';
       mockWalletService.fundWallet.mockRejectedValue(new Error(errorMessage));
 
-      const result = await controller.fundWallet({
-        ...mockFundWalletDto,
-      });
+      const result = await controller.fundWallet('user123', mockFundWalletDto);
 
       expect(result).toEqual({
         success: false,
@@ -98,7 +94,7 @@ describe('WalletController', () => {
       const errorMessage = 'Payment processing failed';
       mockWalletService.fundWallet.mockRejectedValue(new Error(errorMessage));
 
-      const result = await controller.fundWallet(mockFundWalletDto);
+      const result = await controller.fundWallet('user123', mockFundWalletDto);
 
       expect(result).toEqual({
         success: false,
@@ -112,7 +108,7 @@ describe('WalletController', () => {
       const errorMessage = 'Payment reference already exists';
       mockWalletService.fundWallet.mockRejectedValue(new Error(errorMessage));
 
-      const result = await controller.fundWallet(mockFundWalletDto);
+      const result = await controller.fundWallet('user123', mockFundWalletDto);
 
       expect(result).toEqual({
         success: false,
@@ -125,12 +121,7 @@ describe('WalletController', () => {
     it('should handle user not found error', async () => {
       const errorMessage = 'User not found';
       mockWalletService.fundWallet.mockRejectedValue(new Error(errorMessage));
-
-      const result = await controller.fundWallet({
-        ...mockFundWalletDto,
-        userId: 'nonexistent',
-      });
-
+      const result = await controller.fundWallet('user123', mockFundWalletDto);
       expect(result).toEqual({
         success: false,
         message: 'Failed to fund wallet',

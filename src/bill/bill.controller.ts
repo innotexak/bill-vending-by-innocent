@@ -8,7 +8,7 @@ import {
 import { BillService } from './bill.service';
 import { PayBillDto } from './dto/pay-bill.dto';
 import { BaseResponse } from '../common/interfaces/base-response.interface';
-import { UserDecorator } from '@/common/decorator/decorator.getCurrentUser';
+import { UserDecorator } from '../common/decorator/decorator.getCurrentUser';
 
 @ApiTags('bills')
 @Controller('bills')

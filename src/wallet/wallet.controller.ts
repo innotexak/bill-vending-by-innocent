@@ -8,7 +8,7 @@ import {
 import { WalletService } from './wallet.service';
 import { FundWalletDto } from './dto/fund-wallet.dto';
 import { BaseResponse } from '../common/interfaces/base-response.interface';
-import { UserDecorator } from '@/common/decorator/decorator.getCurrentUser';
+import { UserDecorator } from '../common/decorator/decorator.getCurrentUser';
 
 @ApiTags('wallet')
 @Controller('wallet')

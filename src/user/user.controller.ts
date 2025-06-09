@@ -10,10 +10,10 @@ import {
   BaseResponse,
   LoginResponse,
   TOKEN_NAME,
-} from '@/common/interfaces/base-response.interface';
+} from '../common/interfaces/base-response.interface';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { UserDecorator } from '@/common/decorator/decorator.getCurrentUser';
+import { UserDecorator } from '../common/decorator/decorator.getCurrentUser';
 import { Response } from 'express';
 import { CookieOptions } from 'express-serve-static-core';
 
