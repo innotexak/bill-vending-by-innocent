@@ -38,22 +38,30 @@ A robust backend service for bill vending that allows users to purchase electric
 ```
 src/
 ├── bill/
-│   ├── bill.service.ts             
+│   ├── bill.service.ts
 │   ├── dto/
-│   │   └── pay-bill.dto.ts
+│   │   ├── pay-bill.dto.ts
+│   │   └── bill-payment-request.dto.ts
 │   ├── interfaces/
 │   │   ├── reversal-data.interface.ts
 │   │   └── bill-payment-process-data.interface.ts
-│   ├── dto/
-│   │   └── bill-payment-request.dto.ts
 │   └── services/
 │       └── external-bill-payment.service.ts
 │
 ├── wallet/
-│   └── wallet.service.ts
+│   ├── wallet.controller.ts
+│   ├── wallet.service.ts
+│   ├── dto/
+│   │   ├── fund-wallet.dto.ts
+│   │   └── check-balance.dto.ts
+│   └── schemas/
+│       └── wallet.schema.ts
 │
 ├── transaction/
-│   └── transaction.service.ts
+│   ├── transaction.controller.ts
+│   ├── transaction.service.ts
+│   └── schemas/
+│       └── transaction.schema.ts
 │
 ├── common/
 │   ├── enums/
@@ -61,14 +69,16 @@ src/
 │   │   └── transaction-status.enum.ts
 │   └── decorators/
 │       └── get-current-user.decorator.ts
+│
 ├── user/
-│   ├── user.service.ts         
-│   ├── user.controller.ts     
+│   ├── user.service.ts
+│   ├── user.controller.ts
 │   ├── dto/
-│   │   ├── register.dto.ts    
-│   │   └── login.dto.ts        
+│   │   ├── register.dto.ts
+│   │   └── login.dto.ts
 │   └── schemas/
-│       └── user.schema.ts     
+│       └── user.schema.ts
+│
 └── main.ts
 
 ```
