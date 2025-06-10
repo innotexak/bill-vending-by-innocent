@@ -38,7 +38,7 @@ A robust backend service for bill vending that allows users to purchase electric
 ```
 src/
 ├── bill/
-│   ├── bill.service.ts              <-- Main file you shared
+│   ├── bill.service.ts             
 │   ├── dto/
 │   │   └── pay-bill.dto.ts
 │   ├── interfaces/
