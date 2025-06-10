@@ -5,31 +5,71 @@ A robust backend service for bill vending that allows users to purchase electric
 ## 🏗️ Architecture Overview
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Wallet API    │    │ Transaction API │    │   Bill API      │
-│                 │    │                 │    │                 │
-│ • Fund Wallet   │    │ • Get by ID     │    │ • Pay Bill      │
-│ • Check Balance │    │ • Get by User   │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-                    ┌─────────────────┐
-                    │  Service Layer  │
-                    │                 │
-                    │ • WalletService │
-                    │ • BillService   │
-                    │ • TransactionService │
-                    └─────────────────┘
-                                 │
-                    ┌─────────────────┐
-                    │  Data Layer     │
-                    │                 │
-                    │ • MongoDB Atlas │
-                    │ • Redis Queue   │
-                    │ • External APIs │
-                    └─────────────────┘
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   User API      │    │   Wallet API    │    │ Transaction API │    │   Bill API      │
+│                 │    │                 │    │                 │    │                 │
+│ • Register      │    │ • Fund Wallet   │    │ • Get by ID     │    │ • Pay Bill      │
+│ • Login         │    │ • Check Balance │    │ • Get by User   │    │ • Queue status  │
+│ • Logout        │    └─────────────────┘    └─────────────────┘    └─────────────────┘
+│ • Profile       │
+└─────────────────┘
+         │                         │                       │                       │
+         └─────────────────────────┼───────────────────────┼───────────────────────┘
+                                   │                       │
+                    ┌───────────────────────────────┐      │
+                    │         Service Layer         │      │
+                    │                               │      │
+                    │ • UserService                 │◀─────┘
+                    │ • WalletService               │
+                    │ • BillService                 │
+                    │ • TransactionService          │
+                    └───────────────────────────────┘
+                                   │
+                    ┌───────────────────────────────┐
+                    │           Data Layer          │
+                    │                               │
+                    │ • MongoDB Atlas (Users, etc.) │
+                    │ • Redis Queue (Bull)          │
+                    │ • External APIs               │
+                    └───────────────────────────────┘
 ```
+
+### Folder Structure 
+src/
+├── bill/
+│   ├── bill.service.ts              <-- Main file you shared
+│   ├── dto/
+│   │   └── pay-bill.dto.ts
+│   ├── interfaces/
+│   │   ├── reversal-data.interface.ts
+│   │   └── bill-payment-process-data.interface.ts
+│   ├── dto/
+│   │   └── bill-payment-request.dto.ts
+│   └── services/
+│       └── external-bill-payment.service.ts
+│
+├── wallet/
+│   └── wallet.service.ts
+│
+├── transaction/
+│   └── transaction.service.ts
+│
+├── common/
+│   ├── enums/
+│   │   ├── transaction-type.enum.ts
+│   │   └── transaction-status.enum.ts
+│   └── decorators/
+│       └── get-current-user.decorator.ts
+├── user/
+│   ├── user.service.ts         
+│   ├── user.controller.ts     
+│   ├── dto/
+│   │   ├── register.dto.ts    
+│   │   └── login.dto.ts        
+│   └── schemas/
+│       └── user.schema.ts     
+└── main.ts
+
 
 ### Key Components
 
@@ -38,6 +78,7 @@ A robust backend service for bill vending that allows users to purchase electric
 3. **Transaction Management**: Complete audit trail of all operations
 4. **Event-Driven Processing**: Asynchronous failure handling and reversals
 5. **Concurrency Control**: Race condition prevention using MongoDB transactions
+6. **User Management**: User management system (authentication)
 
 ## 🛠️ Tech Stack
 
@@ -78,10 +119,13 @@ MONGODB_URI=mongodb+srv://username:password@cluster0.6lymd.mongodb.net/billing?r
 # Redis
 REDIS_HOST=localhost
 REDIS_PORT=6379
+REDIS_PASSWORD="redis password"
 
 # Application
 NODE_ENV=development
 PORT=3000
+JWT_SECRET='jdbkajdbvdkahvndajhbvknasdkvbh'
+FRONTEND_URL=http://localhost:3000
 ```
 
 ### 3. Start the Application
