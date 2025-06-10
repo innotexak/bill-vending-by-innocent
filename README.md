@@ -35,6 +35,7 @@ A robust backend service for bill vending that allows users to purchase electric
 ```
 
 ### Folder Structure 
+```
 src/
 ├── bill/
 │   ├── bill.service.ts              <-- Main file you shared
@@ -70,7 +71,7 @@ src/
 │       └── user.schema.ts     
 └── main.ts
 
-
+```
 ### Key Components
 
 1. **Wallet System**: Fund management with atomic operations
