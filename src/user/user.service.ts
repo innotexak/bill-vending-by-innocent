@@ -84,8 +84,8 @@ export class UserService {
     });
     await create.save();
 
-    //Create user wallet once the registration is completed
-    await this.walletService.fundWallet({ amount: 0.5 }, create._id as string);
+    //Create user wallet once the registration is completed and deposit 50 naira
+    await this.walletService.fundWallet({ amount: 50 }, create._id as string);
 
     // Destructure to exclude password
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

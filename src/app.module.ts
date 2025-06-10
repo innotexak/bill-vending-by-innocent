@@ -13,20 +13,40 @@ import { UserModule } from './user/user.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot(
-      process.env.MONGODB_URI || 'mongodb://localhost:27017/bill-vending',
-    ),
+    MongooseModule.forRoot(process.env.MONGODB_URI),
     BullModule.forRoot({
       redis: {
         host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT),
-
-        // password: process.env.REDIS_PASSWORD, //
+        // password: process.env.REDIS_PASSWORD,
         tls: process.env.REDIS_HOST !== 'localhost' ? {} : undefined,
-        maxRetriesPerRequest: 3,
+
+        maxRetriesPerRequest: null,
         enableReadyCheck: false,
-        lazyConnect: true,
+
+        lazyConnect: false,
+        connectTimeout: 60000,
+        commandTimeout: 30000,
+        family: 4,
+        db: 0,
       },
+      settings: {
+        stalledInterval: 30 * 1000,
+        maxStalledCount: 1,
+        retryProcessDelay: 2 * 1000,
+      },
+      defaultJobOptions: {
+        removeOnComplete: 10,
+        removeOnFail: 10,
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 2000,
+        },
+        // Add timeout to prevent hanging jobs
+        timeout: 60000,
+      },
+      prefix: 'bill-vending',
     }),
     WalletModule,
     BillModule,

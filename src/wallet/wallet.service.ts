@@ -39,7 +39,7 @@ export class WalletService {
     const wallet = await this.walletModel.findOneAndUpdate(
       { userId },
       { $inc: { balance: amount } },
-      { new: true },
+      { new: true, upsert: true },
     );
 
     this.logger.log(`Wallet funded successfully for user ${userId}`);

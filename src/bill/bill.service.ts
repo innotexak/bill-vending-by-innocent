@@ -133,7 +133,11 @@ export class BillService implements OnModuleInit {
         meterNumber,
       };
 
-      await this.billPaymentQueue.add('process-payment', queueData);
+      const cleanData = JSON.parse(JSON.stringify(queueData));
+      await this.billPaymentQueue.add('process-payment', cleanData, {
+        priority: 1,
+        jobId: transactionId,
+      });
 
       this.logger.log(`Bill payment queued for processing: ${transactionId}`);
 
@@ -326,5 +330,63 @@ export class BillService implements OnModuleInit {
         );
       }
     }
+  }
+
+  async getQueueStatus() {
+    const waiting = await this.billPaymentQueue.getWaiting();
+    const active = await this.billPaymentQueue.getActive();
+    const completed = await this.billPaymentQueue.getCompleted();
+    const failed = await this.billPaymentQueue.getFailed();
+    const delayed = await this.billPaymentQueue.getDelayed();
+
+    // Get recent job details (last 5 of each type)
+    const recentActive = active.slice(-5).map((job) => ({
+      id: job.id,
+      name: job.name,
+      transactionId: job.data?.transactionId,
+      progress: job.progress(),
+      processedOn: job.processedOn,
+    }));
+
+    const recentFailed = failed.slice(-5).map((job) => ({
+      id: job.id,
+      name: job.name,
+      transactionId: job.data?.transactionId,
+      failedReason: job.failedReason,
+      attemptsMade: job.attemptsMade,
+    }));
+
+    this.logger.log(
+      `Detailed Queue Status - Waiting: ${waiting.length}, Active: ${active.length}, Completed: ${completed.length}, Failed: ${failed.length}, Delayed: ${delayed.length}`,
+    );
+
+    return {
+      counts: {
+        waiting: waiting.length,
+        active: active.length,
+        completed: completed.length,
+        failed: failed.length,
+        delayed: delayed.length,
+        total:
+          waiting.length +
+          active.length +
+          completed.length +
+          failed.length +
+          delayed.length,
+      },
+      recentJobs: {
+        active: recentActive,
+        failed: recentFailed,
+      },
+      queueHealth: {
+        isHealthy: failed.length < 10 && active.length < 20, // Simple health check
+        processingRate:
+          active.length > 0
+            ? 'processing'
+            : waiting.length > 0
+              ? 'pending'
+              : 'idle',
+      },
+    };
   }
 }

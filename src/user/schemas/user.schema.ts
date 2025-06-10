@@ -1,6 +1,6 @@
 import { UserRole } from '../../common/enums/user-role.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
 export type UserDocument = User & Document;
 
@@ -32,6 +32,13 @@ export class User {
 
   @Prop({ default: false })
   deleted: boolean;
+
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    unique: true,
+    index: true,
+  })
+  walletId: MongooseSchema.Types.ObjectId;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

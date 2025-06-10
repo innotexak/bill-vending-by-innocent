@@ -11,5 +11,6 @@ import { BillModule } from '../bill/bill.module';
     BillModule,
   ],
   providers: [BillPaymentProcessor],
+  exports: [BillPaymentProcessor],
 })
 export class QueueModule {}
