@@ -38,7 +38,7 @@ A robust backend service for bill vending that allows users to purchase electric
 ```
 src/
 ├── bill/
-│   ├── bill.service.ts              <-- Main file you shared
+│   ├── bill.service.ts             
 │   ├── dto/
 │   │   └── pay-bill.dto.ts
 │   ├── interfaces/
@@ -124,7 +124,7 @@ REDIS_PASSWORD="redis password"
 
 # Application
 NODE_ENV=development
-PORT=3000
+PORT=5000
 JWT_SECRET='jdbkajdbvdkahvndajhbvknasdkvbh'
 FRONTEND_URL=http://localhost:3000
 ```
@@ -156,9 +156,9 @@ npm run test:cov          # Coverage report
 npm run test:e2e          # Integration tests
 ```
 
-## 📖 API Documentation
+## 📖 API Documentations
 
-**Swagger UI**: `http://localhost:3000/api/docs`
+**Swagger UI**: `http://localhost:5000/api/docs`
 
 ### Core Features
 - **Wallet Operations**: Fund wallet, check balance
